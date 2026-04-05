@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Community Photo Gallery | Your Private Photo Space</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fb;
+            color: #1e293b;
+            transition: background 0.3s;
+        }
+
+        body.dark {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        body.dark .header {
+            background: #1e293b;
+            border-bottom-color: #334155;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            font-weight: 500;
+        }
+
+        .nav-links a {
+            cursor: pointer;
+            text-decoration: none;
+            color: #475569;
+            transition: 0.2s;
+        }
+
+        body.dark .nav-links a {
+            color: #cbd5e1;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #f97316;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #ea580c;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #f97316;
+            color: #f97316;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: #fff7ed;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+
+        /* Auth Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px;
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+        }
+
+        body.dark .auth-card {
+            background: #1e293b;
+        }
+
+        .auth-card input {
+            width: 100%;
+            padding: 14px 18px;
+            margin: 12px 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 60px;
+            font-size: 1rem;
+        }
+
+        body.dark .auth-card input {
+            background: #334155;
+            border-color: #475569;
+            color: white;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .auth-tab.active {
+            color: #f97316;
+            border-bottom: 2px solid #f97316;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed #f97316;
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            margin: 30px 0;
+            cursor: pointer;
+            background: #fff7ed;
+            transition: 0.2s;
+        }
+
+        body.dark .upload-zone {
+            background: #1e293b;
+        }
+
+        .upload-zone:hover {
+            background: #ffedd5;
+            border-color: #ea580c;
+        }
+
+        /* Gallery Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 30px 0;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: 0.2s;
+        }
+
+        body.dark .photo-card {
+            background: #1e293b;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .photo-info {
+            padding: 16px;
+        }
+
+        .photo-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .photo-event {
+            display: inline-block;
+            background: #fff3e6;
+            color: #f97316;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-bottom: 8px;
+        }
+
+        .photo-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .photo-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Filters */
+        .filters-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        .filters-bar input, .filters-bar select {
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            flex: 1;
+        }
+
+        body.dark .filters-bar input, body.dark .filters-bar select {
+            background: #334155;
+            border-color: #475569;
+            color: white;
+        }
+
+        /* About Section */
+        .about-section {
+            background: white;
+            border-radius: 32px;
+            padding: 48px;
+            margin: 40px 0;
+        }
+
+        body.dark .about-section {
+            background: #1e293b;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            font-size: 1.8rem;
+            color: #f97316;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 60px;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 700px) {
+            .navbar { flex-direction: column; }
+            .nav-links { gap: 20px; }
+            .gallery-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="container">
+        <div class="navbar">
+            <div class="logo">
+                <i class="fas fa-images"></i> Community Gallery
+            </div>
+            <div class="nav-links">
+                <a class="nav-link" data-page="home">Home</a>
+                <a class="nav-link" data-page="gallery">My Gallery</a>
+                <a class="nav-link" data-page="about">About</a>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button id="darkModeBtn" class="btn-outline" style="padding: 8px 16px;">🌙 Dark</button>
+                <button id="authButton" class="btn-primary"><i class="fas fa-user"></i> Sign In</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <!-- HOME PAGE -->
+    <div id="homePage" class="container" style="padding: 40px 0;">
+        <div style="text-align: center; padding: 60px 0;">
+            <h1 style="font-size: 3rem;">Your Memories, Organized</h1>
+            <p style="font-size: 1.2rem; color: #64748b; margin: 20px 0;">Upload, sort, and share your photos in one secure place</p>
+            <button id="homeSignupBtn" class="btn-primary" style="padding: 14px 32px;"><i class="fas fa-user-plus"></i> Create Free Account</button>
+        </div>
+        <div class="upload-zone" id="homeUploadZone">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #f97316;"></i>
+            <p style="margin-top: 12px;">Drag & drop photos here or click to upload</p>
+            <p style="font-size: 0.8rem; margin-top: 8px;">JPG, PNG, WEBP (max 5MB each)</p>
+            <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+        </div>
+    </div>
+
+    <!-- GALLERY PAGE -->
+    <div id="galleryPage" style="display: none;">
+        <div class="container">
+            <div class="filters-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Search by title or event...">
+                <select id="eventFilterSelect">
+                    <option value="all">All Events</option>
+                </select>
+                <button id="clearFiltersBtn" class="btn-outline">Clear</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+                <h2><i class="fas fa-photo-video"></i> My Photo Gallery</h2>
+                <button id="uploadGalleryBtn" class="btn-primary"><i class="fas fa-upload"></i> Upload Photos</button>
+            </div>
+            <div id="galleryGrid" class="gallery-grid">
+                <div class="empty-state">
+                    <i class="fas fa-camera" style="font-size: 3rem; opacity: 0.5;"></i>
+                    <p>No photos yet. Upload your first memory!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABOUT PAGE -->
+    <div id="aboutPage" style="display: none;">
+        <div class="container">
+            <div class="about-section">
+                <h1 style="text-align: center; margin-bottom: 16px;">How Community Gallery Works</h1>
+                <p style="text-align: center; color: #64748b; margin-bottom: 48px;">A complete platform to organize and share your photos with ease</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-user-plus"></i></div>
+                        <div><h3>1. Create Account</h3><p>Sign up with a username and password — your gallery is private and secure.</p></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                        <div><h3>2. Upload Photos</h3><p>Drag & drop or click to upload. Add event names to organize by category.</p></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-tags"></i></div>
+                        <div><h3>3. Smart Organization</h3><p>Filter by event, search by title — keep everything tidy and findable.</p></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-heart"></i></div>
+                        <div><h3>4. Engage & Share</h3><p>Like photos, add comments, and build your community around memories.</p></div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 32px 0 16px;">✨ Key Features</h3>
+                <ul style="margin-left: 20px; line-height: 2;">
+                    <li><i class="fas fa-check-circle" style="color: #f97316;"></i> Secure user authentication (signup / login)</li>
+                    <li><i class="fas fa-check-circle" style="color: #f97316;"></i> Photo upload with event categorization</li>
+                    <li><i class="fas fa-check-circle" style="color: #f97316;"></i> Search and filter by event or title</li>
+                    <li><i class="fas fa-check-circle" style="color: #f97316;"></i> Like and comment on photos</li>
+                    <li><i class="fas fa-check-circle" style="color: #f97316;"></i> Dark mode support</li>
+                    <li><i class="fas fa-check-circle" style="color: #f97316;"></i> All photos saved in your browser (localStorage) — no server needed</li>
+                    <li><i class="fas fa-check-circle" style="color: #f97316;"></i> Fully responsive design — works on phone, tablet, desktop</li>
+                </ul>
+
+                <div style="background: #fff7ed; border-radius: 24px; padding: 24px; margin-top: 40px; text-align: center;">
+                    <p style="font-weight: 600;">📸 Your photos stay private to your account. Each user has their own separate gallery.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // ==================== USER SYSTEM ====================
+    let currentUser = null;
+    let users = JSON.parse(localStorage.getItem('community_gallery_users') || '{}');
+
+    function saveUsers() {
+        localStorage.setItem('community_gallery_users', JSON.stringify(users));
+    }
+
+    function registerUser(username, password) {
+        if (users[username]) return { success: false, error: 'Username already exists' };
+        if (username.length < 3) return { success: false, error: 'Username must be at least 3 characters' };
+        if (password.length < 4) return { success: false, error: 'Password must be at least 4 characters' };
+        
+        users[username] = {
+            password: btoa(password),
+            joinDate: new Date().toISOString(),
+            events: ['General', 'Vacation', 'Family', 'Friends'],
+            photos: []
+        };
+        saveUsers();
+        return { success: true };
+    }
+
+    function loginUser(username, password) {
+        const user = users[username];
+        if (!user) return { success: false, error: 'User not found' };
+        if (user.password !== btoa(password)) return { success: false, error: 'Incorrect password' };
+        return { success: true };
+    }
+
+    function getUserData() {
+        if (!currentUser) return null;
+        return users[currentUser.username];
+    }
+
+    function saveUserData(data) {
+        if (currentUser) {
+            users[currentUser.username] = data;
+            saveUsers();
+        }
+    }
+
+    // ==================== PHOTO FUNCTIONS ====================
+    function addPhoto(file, eventName, caption) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const userData = getUserData();
+                const newPhoto = {
+                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 8),
+                    dataUrl: e.target.result,
+                    name: caption || file.name,
+                    event: eventName || 'General',
+                    date: new Date().toISOString(),
+                    likes: 0,
+                    comments: []
+                };
+                userData.photos.unshift(newPhoto);
+                saveUserData(userData);
+                resolve(newPhoto);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function deletePhoto(photoId) {
+        const userData = getUserData();
+        userData.photos = userData.photos.filter(p => p.id !== photoId);
+        saveUserData(userData);
+        renderGallery();
+        showToast('Photo deleted');
+    }
+
+    function likePhoto(photoId) {
+        const userData = getUserData();
+        const photo = userData.photos.find(p => p.id === photoId);
+        if (photo) {
+            photo.likes = (photo.likes || 0) + 1;
+            saveUserData(userData);
+            renderGallery();
+        }
+    }
+
+    function addComment(photoId, text) {
+        if (!text.trim()) return;
+        const userData = getUserData();
+        const photo = userData.photos.find(p => p.id === photoId);
+        if (photo) {
+            photo.comments = photo.comments || [];
+            photo.comments.push({ user: currentUser.username, text: text, date: new Date() });
+            saveUserData(userData);
+            renderGallery();
+        }
+    }
+
+    // ==================== RENDER GALLERY ====================
+    function renderGallery() {
+        if (!currentUser) return;
+        
+        let photos = [...(getUserData().photos || [])];
+        const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const eventFilter = document.getElementById('eventFilterSelect')?.value || 'all';
+        
+        photos = photos.filter(p => {
+            const matchSearch = p.name.toLowerCase().includes(searchTerm) || p.event.toLowerCase().includes(searchTerm);
+            const matchEvent = eventFilter === 'all' || p.event === eventFilter;
+            return matchSearch && matchEvent;
+        });
+        
+        photos.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        const grid = document.getElementById('galleryGrid');
+        if (!grid) return;
+        
+        if (photos.length === 0) {
+            grid.innerHTML = `<div class="empty-state"><i class="fas fa-camera" style="font-size: 3rem; opacity: 0.5;"></i><p>No photos found. Upload some memories!</p></div>`;
+            return;
+        }
+        
+        grid.innerHTML = photos.map(p => `
+            <div class="photo-card" data-id="${p.id}">
+                <img src="${p.dataUrl}" alt="${p.name}">
+                <div class="photo-info">
+                    <span class="photo-event"><i class="fas fa-folder"></i> ${escapeHtml(p.event)}</span>
+                    <div class="photo-title">${escapeHtml(p.name)}</div>
+                    <div class="photo-actions">
+                        <button class="like-btn" data-id="${p.id}"><i class="fas fa-heart"></i> ${p.likes || 0}</button>
+                        <button class="comment-toggle" data-id="${p.id}"><i class="fas fa-comment"></i> ${p.comments?.length || 0}</button>
+                        <button class="delete-btn" data-id="${p.id}" style="color:#ef4444;"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div id="comments-${p.id}" style="display: none; margin-top: 12px;">
+                        <div style="max-height: 100px; overflow-y: auto; font-size: 0.8rem;">
+                            ${(p.comments || []).map(c => `<div><b>${escapeHtml(c.user)}</b>: ${escapeHtml(c.text)}</div>`).join('')}
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: 8px;">
+                            <input type="text" id="commentInput-${p.id}" placeholder="Write a comment..." style="flex:1; padding: 6px 12px; border-radius: 40px; border: 1px solid #cbd5e1;">
+                            <button class="btn-primary" style="padding: 6px 16px;" onclick="submitComment('${p.id}')">Post</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.onclick = () => likePhoto(btn.dataset.id);
+        });
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.onclick = () => { if(confirm('Delete this photo?')) deletePhoto(btn.dataset.id); };
+        });
+        document.querySelectorAll('.comment-toggle').forEach(btn => {
+            btn.onclick = () => {
+                const div = document.getElementById(`comments-${btn.dataset.id}`);
+                div.style.display = div.style.display === 'none' ? 'block' : 'none';
+            };
+        });
+    }
+    
+    window.submitComment = function(photoId) {
+        const input = document.getElementById(`commentInput-${photoId}`);
+        if (input && input.value.trim()) {
+            addComment(photoId, input.value);
+            input.value = '';
+        }
+    };
+
+    function updateEventFilter() {
+        if (!currentUser) return;
+        const userData = getUserData();
+        const events = [...new Set(userData.photos.map(p => p.event).concat(userData.events || []))];
+        const select = document.getElementById('eventFilterSelect');
+        if (select) {
+            select.innerHTML = '<option value="all">All Events</option>' + events.map(e => `<option value="${e}">${e}</option>`).join('');
+        }
+    }
+
+    // ==================== UPLOAD HANDLER ====================
+    async function handleUpload(files) {
+        if (!currentUser) {
+            showToast('Please sign in first');
+            openAuthModal();
+            return;
+        }
+        
+        for (const file of files) {
+            if (!file.type.startsWith('image/')) {
+                showToast(`${file.name} is not an image`);
+                continue;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                showToast(`${file.name} exceeds 5MB`);
+                continue;
+            }
+            const eventName = prompt(`Assign "${file.name}" to an event?`, 'General');
+            const caption = prompt(`Caption for "${file.name}":`, file.name);
+            await addPhoto(file, eventName || 'General', caption || file.name);
+        }
+        showToast(`Uploaded ${files.length} photo(s)!`);
+        renderGallery();
+        updateEventFilter();
+    }
+
+    // ==================== UI HELPERS ====================
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fas fa-info-circle"></i> ${msg}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // ==================== AUTH MODAL ====================
+    function openAuthModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-mode="login">Sign In</button>
+                    <button class="auth-tab" data-mode="register">Create Account</button>
+                </div>
+                <div id="authForm">
+                    <input type="text" id="authUsername" placeholder="Username">
+                    <input type="password" id="authPassword" placeholder="Password">
+                    <button id="authSubmitBtn" class="btn-primary" style="width:100%; margin-top:16px;">Sign In</button>
+                </div>
+                <p id="authError" style="color: #ef4444; margin-top: 16px;"></p>
+                <button id="closeAuthModal" style="margin-top: 20px; background: none; border: none; cursor: pointer; color: #64748b;">Cancel</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        let mode = 'login';
+        const loginTab = modal.querySelector('[data-mode="login"]');
+        const registerTab = modal.querySelector('[data-mode="register"]');
+        const submitBtn = modal.querySelector('#authSubmitBtn');
+        const authError = modal.querySelector('#authError');
+        
+        function updateUI() {
+            submitBtn.textContent = mode === 'login' ? 'Sign In' : 'Create Account';
+            loginTab.classList.toggle('active', mode === 'login');
+            registerTab.classList.toggle('active', mode === 'register');
+            authError.textContent = '';
+        }
+        
+        loginTab.onclick = () => { mode = 'login'; updateUI(); };
+        registerTab.onclick = () => { mode = 'register'; updateUI(); };
+        
+        submitBtn.onclick = () => {
+            const username = modal.querySelector('#authUsername').value.trim();
+            const password = modal.querySelector('#authPassword').value;
+            
+            if (mode === 'register') {
+                const res = registerUser(username, password);
+                if (res.success) {
+                    showToast('Account created! Please sign in.');
+                    mode = 'login';
+                    updateUI();
+                    modal.querySelector('#authPassword').value = '';
+                } else {
+                    authError.textContent = res.error;
+                }
+            } else {
+                const res = loginUser(username, password);
+                if (res.success) {
+                    currentUser = { username };
+                    modal.remove();
+                    document.getElementById('authButton').innerHTML = `<i class="fas fa-user-check"></i> ${username}`;
+                    showToast(`Welcome, ${username}!`);
+                    showPage('gallery');
+                    renderGallery();
+                    updateEventFilter();
+                } else {
+                    authError.textContent = res.error;
+                }
+            }
+        };
+        
+        modal.querySelector('#closeAuthModal').onclick = () => modal.remove();
+        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    }
+
+    function logout() {
+        currentUser = null;
+        document.getElementById('authButton').innerHTML = '<i class="fas fa-user"></i> Sign In';
+        showPage('home');
+        showToast('Signed out');
+    }
+
+    // ==================== PAGE NAVIGATION ====================
+    function showPage(page) {
+        document.getElementById('homePage').style.display = 'none';
+        document.getElementById('galleryPage').style.display = 'none';
+        document.getElementById('aboutPage').style.display = 'none';
+        
+        if (page === 'home') document.getElementById('homePage').style.display = 'block';
+        if (page === 'gallery') {
+            if (!currentUser) {
+                openAuthModal();
+                return;
+            }
+            document.getElementById('galleryPage').style.display = 'block';
+            renderGallery();
+            updateEventFilter();
+        }
+        if (page === 'about') document.getElementById('aboutPage').style.display = 'block';
+        
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+        document.querySelector(`.nav-link[data-page="${page}"]`).classList.add('active');
+    }
+
+    // ==================== INITIALIZATION ====================
+    document.addEventListener('DOMContentLoaded', () => {
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.onclick = () => showPage(link.dataset.page);
+        });
+        
+        // Auth
+        document.getElementById('authButton').onclick = () => {
+            if (currentUser) logout();
+            else openAuthModal();
+        };
+        document.getElementById('homeSignupBtn').onclick = openAuthModal;
+        
+        // Dark Mode
+        document.getElementById('darkModeBtn').onclick = () => {
+            document.body.classList.toggle('dark');
+        };
+        
+        // Upload handlers
+        const uploadZone = document.getElementById('homeUploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
+        
+        uploadZone.onclick = () => fileInput.click();
+        if (uploadGalleryBtn) uploadGalleryBtn.onclick = () => fileInput.click();
+        
+        fileInput.onchange = (e) => {
+            if (e.target.files.length) handleUpload(e.target.files);
+            fileInput.value = '';
+        };
+        
+        uploadZone.ondragover = (e) => e.preventDefault();
+        uploadZone.ondrop = (e) => {
+            e.preventDefault();
+            handleUpload(e.dataTransfer.files);
+        };
+        
+        // Filters
+        document.getElementById('searchInput')?.addEventListener('input', () => renderGallery());
+        document.getElementById('eventFilterSelect')?.addEventListener('change', () => renderGallery());
+        document.getElementById('clearFiltersBtn')?.onclick = () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('eventFilterSelect').value = 'all';
+            renderGallery();
+        };
+        
+        showPage('home');
+    });
+</script>
+</body>
+</html>
